@@ -1,0 +1,50 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+
+    <persistence-unit name="belajarjpa">
+<!--
+        ini adalah config JPA.
+
+        Persistence Unit atau JPA Unit nya mempunyai attribute name dimana value dari attribute ini akan di gunakan
+        dalam pemanggilan Persistence Unit di Entity Manager Factory.
+
+        untuk Provider kita menggunakan Hibernate ORM seperti pada contoh tah provider di bawah.
+
+        setiap entity yang ada harus di daftar kan di dalam tag class supaya entity tersebut bisa di mapping kan oleh
+        JPA. jadi misal ada 4 entity brarti akan ada 4 tag class.
+
+        pada tag properties dia memuat connection string ke DB nya.
+
+        hibernate.show_sql : untuk menampilkan query2 yang di jalan kan ke DB
+        hibernate.format_sql : untuk memformat query2 yang panjang2 itu menjadi rapih.
+
+-->
+
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entity Classes -->
+        <class>com.adi.belajarjpa.model.Customer</class>
+        <class>com.adi.belajarjpa.model.Category</class>
+        <class>com.adi.belajarjpa.model.Images</class>
+        <class>com.adi.belajarjpa.model.Members</class>
+        <class>com.adi.belajarjpa.model.Department</class>
+        <class>com.adi.belajarjpa.model.Brands</class>
+        <class>com.adi.belajarjpa.model.Products</class>
+        <class>com.adi.belajarjpa.model.Users</class>
+        <class>com.adi.belajarjpa.model.Credentials</class>
+        <class>com.adi.belajarjpa.model.Wallet</class>
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/belajarjpa"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
