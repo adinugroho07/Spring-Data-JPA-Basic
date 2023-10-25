@@ -21,6 +21,19 @@
         hibernate.show_sql : untuk menampilkan query2 yang di jalan kan ke DB
         hibernate.format_sql : untuk memformat query2 yang panjang2 itu menjadi rapih.
 
+        SCHEMA GENERATOR
+        Hibernate juga menyediakan schema generator namun ini tidak di recomendasikan artinya di gunakan sesuai kebutuhan.
+        property yang di gunakan adalah jakarta.persistence.schema-generation.database.action seperti contoh di bawah
+
+        <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+
+        value yang bisa di isi kan adalah :
+        - none -> tidak melakukan apa2
+        - create -> hanya membuat schema, jika sudah ada dia akan error.
+        - drop -> menghapus schema yang ada
+        - drop-ad-create -> menghapus dulu schema yang lama setelah itu membuat kembali schema nya.
+
+
 -->
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
@@ -42,6 +55,7 @@
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/belajarjpa"/>
             <property name="jakarta.persistence.jdbc.user" value="root"/>
             <property name="jakarta.persistence.jdbc.password" value=""/>
+<!--            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>-->
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>

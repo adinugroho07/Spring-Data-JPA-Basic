@@ -1,17 +1,27 @@
 package com.adi.belajarjpa.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "brands")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+//contoh namedQueries. jika kita hanya ingin membuat 1 alias query kita bisa menggunakan @NamedQuery() saja, gausah @NamedQueries
+@NamedQueries({//@NamedQueries di gunakan jika kita ingin membuat alias Query lebih dari 1.
+        @NamedQuery(name = "Brands.findAll", query = "select b from Brands b order by b.id"),
+        @NamedQuery(name = "Brands.findAllByName", query = "select b from Brands b where b.name = :name"),
+        @NamedQuery(name = "Brands.findById", query = "select b from Brands b where b.id = :id")
+})
+@NamedNativeQueries({//Named Native Query, hampir sama dengan NamedQuery biasa cuman di sini snytaks SQL nya adalah syntaks SQL DB.
+        @NamedNativeQuery(name = "Brands.native.findAllOrderByName",
+                query = "select * from brands where brands.created_at is not null order by brands.name asc",
+                resultClass = Brands.class)
+})
 public class Brands extends AuditableEntity<String>{
 
     @Id
@@ -100,5 +110,22 @@ public class Brands extends AuditableEntity<String>{
     *
     * konsekuensi dari optimistic locking ini adalah transaksi nya akan jadi lebih sering melakukan rollback ketimbang
     * commit.
+    *
+    * Pessimistic Locking ini locking yang akan me lock data ketika di select dan menjadikan transaksi lain tidak bisa
+    * mengubah data sampai transaksi yang pertama melakukan lock selesai melakukan commit transaksi. semua jenis2 lock
+    * ini type nya adalah ENUM LockModeType, detail nya bisa di lihat di sini.
+    * https://jakarta.ee/specifications/persistence/3.1/apidocs/jakarta.persistence/jakarta/persistence/lockmodetype
+    * jenis-jenis locking :
+    * - NONE -> Tidak ada lock, semua lock terjadi di akhir transaksi ketika data di update
+    * - READ / OPTIMISTIC -> Versi entity akan di cek di akhir transaksi (ini adalah Optimistic Locking)
+    * - WRITE / OPTIMISTIC_FORCE_INCREMENT -> Versi entity akan dinaikkan secara otomatis walaupun data tidak di update
+    * - PESSIMISTIC_FORCE_INCREMENT -> Entity akan di lock secara pessimistic, dan versi akan dinaikkan walaupun data
+    *                                  tidak di update
+    * - PESSIMISTIC_READ Entity -> akan di lock secara pessimistic menggunakan shared lock (jika database mendukung),
+    *                              SELECT FOR SHARE
+    * - PESSIMISTIC_WRITE Entity -> akan di lock secara explicit, SELECT FOR UPDATE
+    *
+    * kenapa nama nya Pessimistic Locking, karena ketika transaksi pertama sudah sukses, bisa saja datanya di ubah oleh
+    * transaksi selanjutnya walaupun transaksi pertama lebih dulu selesai.
     * */
 }
