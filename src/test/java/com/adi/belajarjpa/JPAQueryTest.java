@@ -1,16 +1,14 @@
 package com.adi.belajarjpa;
 
-import com.adi.belajarjpa.model.Brands;
+import com.adi.belajarjpa.model.*;
 import com.adi.belajarjpa.model.JPAHelper.AggregateProducts;
 import com.adi.belajarjpa.model.JPAHelper.SimpleBrands;
-import com.adi.belajarjpa.model.Members;
-import com.adi.belajarjpa.model.Products;
-import com.adi.belajarjpa.model.Users;
 import com.adi.belajarjpa.util.JpaUtil;
 import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class JPAQueryTest {
@@ -50,9 +48,7 @@ public class JPAQueryTest {
         TypedQuery<Brands> query = entityManager.createQuery("select b from Brands b", Brands.class);
         //alias entity Brands adalah b, maka select all nya tidak menggunakan *, melainkan menggunakan alias entity nya, jadi select b
         List<Brands> brands = query.getResultList();//menampung list data dengan Object Brands pake collection.
-        brands.forEach(brands1 -> {
-            System.out.println(brands1.getName());
-        });
+        brands.forEach(brands1 -> System.out.println(brands1.getName()));
 
         entityTransaction.commit();
         entityManager.close();
@@ -89,9 +85,7 @@ public class JPAQueryTest {
         //query di atas beserta where nya sama seperti syntaks query berikut
         //select * form members where firstName='Adi' and lastName = 'Nugroho' and id = 3
         List<Members> members = query.getResultList();
-        members.forEach(members1 -> {
-            System.out.println(members1.getName().getFirstName()+" "+members1.getName().getLastName());
-        });
+        members.forEach(members1 -> System.out.println(members1.getName().getFirstName()+" "+members1.getName().getLastName()));
 
         entityTransaction.commit();
         entityManager.close();
@@ -120,9 +114,7 @@ public class JPAQueryTest {
                 + " where b.name = :brandname ", Products.class);
         query.setParameter("brandname","Samsung");
         List<Products> products = query.getResultList();
-        products.forEach(products1 -> {
-            System.out.println(products1.getName());
-        });
+        products.forEach(products1 -> System.out.println(products1.getName()));
 
         //contoh query Join with fetch di JPA
         TypedQuery<Users> query1 = entityManager.createQuery("select u from Users u join fetch u.likes p"
@@ -149,9 +141,7 @@ public class JPAQueryTest {
         //contoh penggunaan order by
         TypedQuery<Brands> query = entityManager.createQuery("select b from Brands b order by b.name desc", Brands.class);
         List<Brands> brands = query.getResultList();
-        brands.forEach(brands1 -> {
-            System.out.println(brands1.getName());
-        });
+        brands.forEach(brands1 -> System.out.println(brands1.getName()));
 
         TypedQuery<Brands> query1 = entityManager.createQuery("select b from Brands b order by b.name desc", Brands.class);
         //untuk mengatur offset atau data yang di skip. jika di set 5 maka data 1 - 5 akan di skip dan di mulai dari data 6
@@ -159,9 +149,7 @@ public class JPAQueryTest {
         //untuk mengatur limit data yang bisa di select
         query1.setMaxResults(5);
         List<Brands> brands1 = query1.getResultList();
-        brands1.forEach(brands2 -> {
-            System.out.println(brands2.getName());
-        });
+        brands1.forEach(brands2 -> System.out.println(brands2.getName()));
 
         entityTransaction.commit();
         entityManager.close();
@@ -324,5 +312,40 @@ public class JPAQueryTest {
 
         entityTransaction.commit();
         entityManager.close();
+    }
+
+    @Test
+    void RunQueryFromTableTest() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        entityTransaction.begin();
+
+        //select table yang di dalam table nya itu ada query selectnya.
+        TypedQuery<TableQuery> query = entityManager.createQuery("select t from TableQuery t where id = :id", TableQuery.class);
+        query.setParameter("id","1");
+        TableQuery resultList = query.getSingleResult();
+
+        //di dalam table tersebut ada 2 query dan bisa di split pakai delimeter ;
+        String [] queryNew = resultList.getQuery().split(";");
+
+        //select table dari hasil select di atas menggunakan native query.
+        Query nativeQuery = entityManager.createNativeQuery(queryNew[0], Object[].class);
+        List<Object[]> resultList1 = nativeQuery.getResultList();
+
+        Query nativeQuery2 = entityManager.createNativeQuery(queryNew[1], Object[].class);
+        nativeQuery2.setParameter("id",resultList1.get(0)[1]);
+        List<Object[]> resultList2 = nativeQuery2.getResultList();
+        for (Object[] objects : resultList2) {
+            System.out.println("ID : " + objects[0]);
+            System.out.println("NAME : " + objects[1]);
+            System.out.println("DESCRIPTION : " + objects[2]);
+            System.out.println("VERSION : " + objects[3]);
+            System.out.println("CREATEDAT : " + objects[4]);
+            System.out.println("UPDATEDAT : " + objects[5]);
+        }
+
+        entityTransaction.commit();
+        entityManager.close();
+
     }
 }
